@@ -1,0 +1,11 @@
+<h1>Users</h1>
+<ul>
+  <% @users.each do |user| %>
+    <li>
+      <!--      <p><img src="<%#= user.iamge_path %>"></p>-->
+      <!--      <a href="/user/<%#= user.id %>"><%#= user.user.name %></a>-->
+      <p><a href="/@<%= user.name %>"><%= user.name %></a></p>
+    </li>
+  <% end %>
+</ul>
+<a href="/">Back</a>

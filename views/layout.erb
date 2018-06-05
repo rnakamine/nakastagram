@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title><%= @title %></title>
+</head>
+<body>
+  <header style="border-bottom: 1px solid black; padding-bottom: 10px">
+    <% if @current_user %>
+      Login User : <%= @current_user.name %>
+      <div style="float:right">
+        [ <a href="/users">Users</a> ]
+        [ <a href="/new">New Post</a> ]
+        [ <a href="/logout">Logout</a> ]
+      </div>
+    <% else %>
+      No Login
+      <div style="float:right">
+        [<a href="/signup">Sign up</a>]
+      </div>
+    <% end %>
+  </header>
+  <%= yield %>
+</body>
+</html>

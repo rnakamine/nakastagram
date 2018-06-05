@@ -1,0 +1,16 @@
+<% if flash[:notice] %>
+  <p style="color:red;font-size:12px;"><%= flash[:notice] %></p>
+<% end %>
+<% if @error_message %>
+  <p style="color:red;font-size:12px;"><%= @error_message %></p>
+<% end %>
+
+<h1>Login</h1>
+<form action="/login" method="post">
+  <p>Name</p>
+  <input type="text" name="name" value="<%= @name %>">
+  <p>Password</p>
+  <input type="password" name="password" value="<%= @password %>">
+  <p></p>
+  <input type="submit" value="Login">
+</form>

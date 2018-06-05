@@ -1,0 +1,11 @@
+<p><%= @post.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+<img src="<%= @post.image_path %>"/>
+<p><%= @post.content %></p>
+<p>
+  [ <a href="/edit/<%= @post.id %>">Edit</a> ]
+  <form action="/destroy/<%= @post.id %>" method="post" name="destroy">
+    <input type="hidden">
+    [ <a href="javascript:destroy.submit()">Destroy</a> ]
+  </form>
+</p>
+<a href="/">Back</a>
