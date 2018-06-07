@@ -14,6 +14,7 @@ GEM
       tzinfo (~> 1.1)
     arel (9.0.0)
     backports (3.11.3)
+    bcrypt (3.1.12)
     byebug (10.0.2)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
@@ -59,6 +60,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  bcrypt
   mysql2
   mysql2-cs-bind
   pry

@@ -4,8 +4,8 @@
     <p style="color:red;font-size:12px;">・内容を入力してください</p>
   <% end %>
 <% end %>
-<form action="/edit/<%= @post.id %>" method="post">
+<form action="/update/<%= @post.id %>" method="post">
   <p><input type="text" name="content" value="<%= @post.content %>"></p>
   <p><input type="submit" value="Edit"></p>
 </form>
-<a href="/post/<%= @post['id'] %>">Back</a>
+<a href="/post/<%= @post.id %>">Back</a>

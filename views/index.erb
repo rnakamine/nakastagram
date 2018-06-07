@@ -4,10 +4,30 @@
 <ul>
   <% @posts.each do |post| %>
     <li style="list-style: none; border-bottom: 1px solid black">
-      <p><a href="/@<%= post.user.name %>"><%= post.user.name %></a></p>
+      <p><a href="/@<%= post.user.name %>" style="text-decoration:none"><%= post.user.name %></a></p>
       <a href="/post/<%= post.id %>"><img src="<%= post.image_path %>"/></a>
-      <p><%= post.content %></p>
-      <p>[<%= post.created_at.strftime("%Y-%m-%d %H:%M") %>]</p>
-    </li>
+      <% if Like.find_by(post_id: post.id, user_id: @current_user.id) %>
+        <form action="/like_destroy/<%= post.id %>" method="post" name="destroy_create">
+          <input type="submit" value="❤">
+        </form>
+      <% else %>
+        <form action="/like_create/<%= post.id %>" method="post" name="create_like">
+          <input type="submit" value="♡">
+        </form>
+      <% end %>
+      <p style="font-size:12px">いいね！<%= Like.where(post_id: post.id).count %>件</p>
+      <p style="font-size:12px">
+        <span style="font-weight:bold"><a href="/@<%= post.user.name %>" style="text-decoration:none"><%= post.user.name %></a>  </span><%= post.content %>
+      </p>
+      <% Comment.where(post_id: post.id).each do |comment| %>
+      <p style="font-size:12px">
+        <span style="font-weight:bold"><a href="/@<%= comment.user.name %>" style="text-decoration:none"><%= comment.user.name %></a>  </span><%= comment.comment %>
+      </p>
+  <% end %>
+  <p style="font-size:10px">[<%= post.created_at.strftime("%Y-%m-%d %H:%M") %>]</p>
+  <form action="/comment_create/<%= post.id %>/<%= @current_user.id %>" method="post" enctype="multipart/form-data">
+    <p><input type="text" name="comment" placeholder="コメントを追加..."></p>
+  </form>
+  </li>
   <% end %>
 </ul>

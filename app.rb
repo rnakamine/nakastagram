@@ -18,18 +18,29 @@ class Nakastagram < Sinatra::Base
   enable :sessions
 
   helpers do
-    def login?
-      session[:user_id].present?
-    end
-
     def set_current_user
-      @current_user = User.find(session[:user_id]) if login?
+      @current_user = User.find(session[:user_id]) if session[:user_id]
     end
 
     def authenticate_user
-      unless login?
+      unless session[:user_id]
         flash[:notice] = 'ログインが必要です'
-        redirect to('/login')
+        redirect to('/login_form')
+      end
+    end
+
+    def forbid_login_user
+      if @current_user
+        flash[:notice] = 'すでにログインしています'
+        redirect to('/')
+      end
+    end
+
+    def ensure_correct_post
+      post = Post.find(params[:id])
+      if @current_user.id != post.user_id
+        flash[:notice] = '権限がありません'
+        redirect to('/')
       end
     end
   end
@@ -53,6 +64,7 @@ class Nakastagram < Sinatra::Base
   end
 
   post '/create' do
+    authenticate_user
     if params[:image] != nil
       filename = "/image/#{params[:image][:filename]}"
       image = params[:image][:tempfile]
@@ -83,11 +95,13 @@ class Nakastagram < Sinatra::Base
 
   get '/edit/:id' do
     authenticate_user
+    ensure_correct_post
     @post = Post.find(params[:id])
     erb :edit
   end
 
-  post '/edit/:id' do
+  post '/update/:id' do
+    ensure_correct_post
     @post = Post.find(params[:id])
 
     if @post.update(content: params[:content])
@@ -99,18 +113,20 @@ class Nakastagram < Sinatra::Base
   end
 
   post '/destroy/:id' do
+    ensure_correct_post
     Post.find(params[:id]).destroy
     flash[:notice] = '投稿を削除しました'
     redirect to('/')
   end
 
   get '/signup' do
+    forbid_login_user
     @user = User.new
     erb :signup
   end
 
   post '/user_create' do
-    @user = User.new(name: params[:name], password: params[:password])
+    @user = User.create(name: params[:name], password: params[:password])
 
     if @user.save
       session[:user_id] = @user.id
@@ -121,14 +137,16 @@ class Nakastagram < Sinatra::Base
     end
   end
 
-  get '/login' do
+  get '/login_form' do
+    forbid_login_user
     erb :login
   end
 
   post '/login' do
-    @user = User.find_by(name: params[:name], password: params[:password])
+    forbid_login_user
+    @user = User.find_by(name: params[:name])
 
-    if @user
+    if @user && @user.authenticate(params[:password])
       session[:user_id] = @user.id
       flash[:notice] = 'ログインしました'
       redirect to('/')
@@ -143,7 +161,7 @@ class Nakastagram < Sinatra::Base
   get '/logout' do
     session[:user_id] = nil
     flash[:notice] = 'ログアウトしました'
-    redirect to('/login')
+    redirect to('/login_form')
   end
 
   get '/users' do
@@ -157,22 +175,61 @@ class Nakastagram < Sinatra::Base
     @user = User.find_by(name: params[:name])
     erb :user_show
   end
+
+  get '/user_edit/@:name' do
+    @user = User.find_by(name: params[:name])
+    erb :user_edit
+  end
+
+  post '/like_create/:id' do
+    Like.create(user_id: @current_user.id, post_id: params[:id])
+    redirect to('/')
+  end
+
+  post '/like_destroy/:id' do
+    Like.find_by(user_id: @current_user.id, post_id: params[:id]).destroy
+    redirect to('/')
+  end
+
+  post '/comment_create/:post_id/:user_id' do
+    @comment = Comment.new(
+        post_id: params[:post_id],
+        user_id: params[:user_id],
+        comment: params[:comment]
+    )
+    @comment.save
+    redirect to('/')
+  end
+
 end
 
 class Post < ActiveRecord::Base
   validates :content, presence: true
   validates :image_path, presence: true
 
-  def user
-    User.find_by(id: self.user_id)
-  end
+  belongs_to :user
+  has_many :comment
 end
 
 class User < ActiveRecord::Base
-  validates :name, presence: true, uniqueness: true
-  validates :password, presence: true
+  has_secure_password
 
-  def posts
-    Post.where(user_id: self.id)
-  end
+  validates :name, presence: true, uniqueness: true
+
+  has_many :post
+  has_many :comment
+end
+
+class Like < ActiveRecord::Base
+  validates :user_id, presence: true
+  validates :post_id, presence: true
+end
+
+class Comment < ActiveRecord::Base
+  validates :user_id, presence: true
+  validates :post_id, presence: true
+  validates :comment, presence: true
+
+  belongs_to :user
+  belongs_to :post
 end
