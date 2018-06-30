@@ -1,33 +1,143 @@
-<% if flash[:notice] %>
-  <p style="color:red;font-size:12px;"><%= flash[:notice] %></p>
-<% end %>
-<ul>
-  <% @posts.each do |post| %>
-    <li style="list-style: none; border-bottom: 1px solid black">
-      <p><a href="/@<%= post.user.name %>" style="text-decoration:none"><%= post.user.name %></a></p>
-      <a href="/post/<%= post.id %>"><img src="<%= post.image_path %>"/></a>
-      <% if Like.find_by(post_id: post.id, user_id: @current_user.id) %>
-        <form action="/like_destroy/<%= post.id %>" method="post" name="destroy_create">
-          <input type="submit" value="❤">
-        </form>
-      <% else %>
-        <form action="/like_create/<%= post.id %>" method="post" name="create_like">
-          <input type="submit" value="♡">
-        </form>
+<section id="index">
+  <div class="container col-xs-12" style="width:630px">
+    <!--ログアウト時-->
+    <% if !@current_user %>
+      <% @posts.each do |post| %>
+        <div class="card" data-id="<%= post.id %>">
+          <div class="card-body">
+            <p class="card-text card-text-top">
+            <div class="card-name float-left">
+              <a href="/@<%= post.user.name %>"><img src="<%= post.user.user_image %>" width="30px" height="30px" style="border-radius:50%">
+                <%= post.user.name %></a>
+            </div>
+            <div class="dropdown float-right">
+              <% if @current_user && post.user_id == @current_user.id %>
+                <a href="#" class="" data-toggle="dropdown">…</a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" href="/edit_<%= post.id %>">Edit</a>
+                  <a class="dropdown-item delete">Delete</a>
+                </ul>
+              <% end %>
+            </div>
+            </p>
+          </div>
+          <img src="<%= post.image_path %>" width="600px" height="auto">
+          <div class="card-body card-body-bottom">
+            <div class="like-button float-left">
+              <% if @current_user %>
+                <% if Like.find_by(post_id: post.id, user_id: @current_user.id) %>
+                  <form action="/like_destroy/<%= post.id %>" method="post" name="destroy_create" class="like">
+                    <button type="submit" style="border: none"><span class="fas fa-heart" style="color: red"></span>
+                    </button>
+                  </form>
+                <% else %>
+                  <form action="/like_create/<%= post.id %>" method="post" name="create_like" class="like">
+                    <button type="submit" style="border: none"><span class="far fa-heart"></span></button>
+                  </form>
+                <% end %>
+              <% else %>
+                <form action="/like_create  " method="post" name="create_like" class="like">
+                  <button type="submit" style="border: none"><span class="far fa-heart"></span></button>
+                </form>
+              <% end %>
+            </div>
+            <label for="comment-<%= post.id %>" style="margin: 0;display: inline"><span class="far fa-comment float-left" style="font-size: 20px;padding: 10px 20px;"></span></label>
+            <div class="clearfix"></div>
+            <p class="like-count">いいね！<%= Like.where(post_id: post.id).count %>件</p>
+            <div class="comment">
+              <p class="card-text"><a href="/@<%= post.user.name %>"><%= post.user.name %></a><%= post.content %></p>
+              <div id="comments">
+                <% Comment.where(post_id: post.id).each do |comment| %>
+                  <p class="card-text">
+                    <a href="/@<%= comment.user.name %>" style="text-decoration:none"><%= comment.user.name %></a><%= comment.comment %>
+                  </p>
+                <% end %>
+              </div>
+            </div>
+            <p class="time"><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+            <% if @current_user %>
+              <form action="/comment_create/<%= post.id %>/<%= @current_user.id %>" method="post">
+            <% else %>
+              <form action="/comment_create" method="post">
+            <% end %>
+            <div class="form-group comment-input">
+              <input id="comment-<%= post.id %>" type="text" name="comment" placeholder="コメントを追加..." class="form-control" style="border:none;border-top: 1px solid #efefef;"></p>
+            </div>
+            </form>
+          </div>
+        </div>
       <% end %>
-      <p style="font-size:12px">いいね！<%= Like.where(post_id: post.id).count %>件</p>
-      <p style="font-size:12px">
-        <span style="font-weight:bold"><a href="/@<%= post.user.name %>" style="text-decoration:none"><%= post.user.name %></a>  </span><%= post.content %>
-      </p>
-      <% Comment.where(post_id: post.id).each do |comment| %>
-      <p style="font-size:12px">
-        <span style="font-weight:bold"><a href="/@<%= comment.user.name %>" style="text-decoration:none"><%= comment.user.name %></a>  </span><%= comment.comment %>
-      </p>
-  <% end %>
-  <p style="font-size:10px">[<%= post.created_at.strftime("%Y-%m-%d %H:%M") %>]</p>
-  <form action="/comment_create/<%= post.id %>/<%= @current_user.id %>" method="post" enctype="multipart/form-data">
-    <p><input type="text" name="comment" placeholder="コメントを追加..."></p>
-  </form>
-  </li>
-  <% end %>
-</ul>
+    <% else %>
+
+      <!--ログイン時-->
+      <% @posts.each do |post| %>
+        <% if Rerationship.find_by(follower_id: @current_user.id, followed_id: post.user.id) || post.user_id == @current_user.id %>
+          <div class="card" data-id="<%= post.id %>">
+            <div class="card-body">
+              <p class="card-text card-text-top">
+              <div class="card-name float-left">
+                <a href="/@<%= post.user.name %>"><img src="<%= post.user.user_image %>" width="30px" height="30px" style="border-radius:50%">
+                  <%= post.user.name %></a>
+              </div>
+              <div class="dropdown float-right">
+                <% if @current_user && post.user_id == @current_user.id %>
+                  <a href="#" class="" data-toggle="dropdown">…</a>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="/edit_<%= post.id %>">Edit</a>
+                    <a class="dropdown-item delete">Delete</a>
+                  </ul>
+                <% end %>
+              </div>
+              </p>
+            </div>
+            <img src="<%= post.image_path %>" width="600px" height="auto">
+            <div class="card-body card-body-bottom">
+              <div class="like-button float-left">
+                <% if @current_user %>
+                  <% if Like.find_by(post_id: post.id, user_id: @current_user.id) %>
+                    <form action="/like_destroy/<%= post.id %>" method="post" name="destroy_create" class="like">
+                      <button type="submit" style="border: none"><span class="fas fa-heart" style="color: red"></span>
+                      </button>
+                    </form>
+                  <% else %>
+                    <form action="/like_create/<%= post.id %>" method="post" name="create_like" class="like">
+                      <button type="submit" style="border: none"><span class="far fa-heart"></span></button>
+                    </form>
+                  <% end %>
+                <% else %>
+                  <form action="/like_create  " method="post" name="create_like" class="like">
+                    <button type="submit" style="border: none"><span class="far fa-heart"></span></button>
+                  </form>
+                <% end %>
+              </div>
+              <label for="comment-<%= post.id %>" style="margin: 0;display: inline"><span class="far fa-comment float-left" style="font-size: 20px;padding: 10px 20px;"></span></label>
+              <div class="clearfix"></div>
+              <p class="like-count">いいね！<%= Like.where(post_id: post.id).count %>件</p>
+              <div class="comment">
+                <p class="card-text"><a href="/@<%= post.user.name %>"><%= post.user.name %></a><%= post.content %></p>
+                <div id="comments">
+                  <% Comment.where(post_id: post.id).each do |comment| %>
+                    <p class="card-text">
+                      <a href="/@<%= comment.user.name %>" style="text-decoration:none"><%= comment.user.name %></a><%= comment.comment %>
+                    </p>
+                  <% end %>
+                </div>
+              </div>
+              <p class="time"><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+              <% if @current_user %>
+                <form action="/comment_create/<%= post.id %>/<%= @current_user.id %>" method="post">
+              <% else %>
+                <form action="/comment_create" method="post">
+              <% end %>
+              <div class="form-group comment-input">
+                <input id="comment-<%= post.id %>" type="text" name="comment" placeholder="コメントを追加..." class="form-control" style="border:none;border-top: 1px solid #efefef;"></p>
+              </div>
+              </form>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</section>
+

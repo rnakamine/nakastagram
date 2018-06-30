@@ -2,25 +2,113 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
   <title><%= @title %></title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport'/>
+  <meta name="viewport" content="width=device-width"/>
+
+  <!--     Bootstrap core CSS     -->
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/paper-kit.css?v=2.1.0" rel="stylesheet"/>
+
+  <!--     Fonts and icons     -->
+  <link href='http://fonts.googleapis.com/css?family=Montserrat:400,300,700' rel='stylesheet' type='text/css'>
+  <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+  <link href="css/nucleo-icons.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+  <!--     Style CSS     -->
+  <link rel="stylesheet" href="css/style.css">
+
 </head>
 <body>
-  <header style="border-bottom: 1px solid black; padding-bottom: 10px">
-    <% if @current_user %>
-      Login User : <%= @current_user.name %>
-      <div style="float:right">
-        [ <a href="/users">Users</a> ]
-        [ <a href="/new">New Post</a> ]
-        [ <a href="/logout">Logout</a> ]
+<nav class="navbar navbar-expand-md navbar-default fixed-top">
+  <div class="container">
+    <div class="navbar-translate">
+      <a class="navbar-brand" href="/" style="padding: 12px 15px;"><img src="image/nakastagram-logo.png" width="140px" height="37px"></a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        <span class="navbar-toggler-icon"></span>
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+    <div class="collapse navbar-collapse" id="navbar-menu">
+      <ul class="navbar-nav ml-auto">
+        <% if @current_user %>
+          <li class="nav-item">
+            <a class="nav-link" href="/new"><i class="nc-icon nc-camera-compact" aria-hidden="true"></i>&nbsp;New
+              Post</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/users"><i class="nc-icon nc-single-02" aria-hidden="true"></i>&nbsp;All Users</a>
+          </li>
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuButton" href="#pk" role="button" aria-haspopup="true" aria-expanded="false"><i class="nc-icon nc-settings-gear-65" aria-hidden="true"></i>&nbsp;Settings</a>
+            <ul class="dropdown-menu dropdown-menu-right dropdown-danger" aria-labelledby="dropdownMenuButton">
+              <li class="dropdown-header"><h5>@<%= @current_user.name %></h5></li>
+              <a class="dropdown-item" href="/@<%= @current_user.name %>">Profile Page</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="/logout">Logout</a>
+            </ul>
+          </div>
+        <% else %>
+          <li class="nav-item">
+            <a class="nav-link login-link" href="/login_form" style="margin:0;padding:0">
+              <button type="button" class="btn btn-outline-danger btn-sm">LOGIN</button>
+            </a>
+          </li>
+        <% end %>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="main">
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <div class="container">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <i class="nc-icon nc-simple-remove"></i>
+        </button>
+        <span><%= flash[:notice] %></span>
       </div>
-    <% else %>
-      No Login
-      <div style="float:right">
-        [<a href="/signup">Sign up</a>]
+    </div>
+  <% end %>
+  <% if flash[:error] || @error_message %>
+    <div class="alert alert-danger">
+      <div class="container">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <i class="nc-icon nc-simple-remove"></i>
+        </button>
+        <% if flash[:error] %>
+          <span><%= flash[:error] %></span>
+        <% else %>
+          <span><%= @error_message %></span>
+        <% end %>
       </div>
-    <% end %>
-  </header>
+    </div>
+  <% end %>
   <%= yield %>
+</div>
+<!-- Core JS Files -->
+<script src="js/jquery-3.2.1.js" type="text/javascript"></script>
+<script src="js/jquery-ui-1.12.1.custom.min.js" type="text/javascript"></script>
+<script src="js/popper.js" type="text/javascript"></script>
+<script src="js/bootstrap.min.js" type="text/javascript"></script>
+
+<!-- Switches -->
+<script src="js/bootstrap-switch.min.js"></script>
+
+<!--  Plugins for Slider -->
+<script src="js/nouislider.js"></script>
+
+<!--  Plugins for DateTimePicker -->
+<script src="js/moment.min.js"></script>
+<script src="js/bootstrap-datetimepicker.min.js"></script>
+
+<!--  Paper Kit Initialization and functons -->
+<script src="js/paper-kit.js?v=2.1.0"></script>
+<script src="js/main.js" type="text/javascript">
+</script>
 </body>
 </html>

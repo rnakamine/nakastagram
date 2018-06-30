@@ -1,0 +1,76 @@
+.main {
+    padding-top: 71px;
+}
+
+section{
+    margin-top: 70px;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+
+.btn {
+    margin-top: 10px;
+}
+
+.nav-item .login-link {
+    margin: 0;
+    padding: 0;
+}
+
+/* index.erb */
+.card-body {
+    padding: 16px;
+}
+
+.card-body a {
+    font-weight: 600;
+    color: #333;
+    margin-right: 5px;
+}
+
+.card-text-top img{
+    margin-right: 5px;
+}
+
+.like button {
+    padding: 0;
+}
+
+.like .fa-heart {
+    font-size: 20px;
+    padding: 10px 0;
+}
+
+.fa-comment {
+    font-size: 20px;
+}
+
+.like-count {
+    font-weight: 600;
+}
+
+.time {
+    font-size: 10px;
+    margin: 7px 0 10px;
+}
+
+.card-body-bottom {
+    padding-top: 5px;
+    padding-bottom: 0;
+}
+
+.comment-input {
+    margin-bottom: 0px;
+}
+
+.comment-input input {
+    font-size: 14px;
+    padding: 25px 0;
+}
+
+/* new.erb */
+.profile-title img {
+    margin: 0 45px 0 0;
+}

@@ -1,14 +1,18 @@
-<h1>Create</h1>
-<% @post.errors.full_messages.each do |message| %>
-  <% if message == "Image path can't be blank" %>
-    <p style="color:red;font-size:12px;">・画像を投稿してください</p>
-  <% elsif message == "Content can't be blank" %>
-    <p style="color:red;font-size:12px;">・内容を入力してください</p>
-  <% end %>
-<% end %>
-<form action="/create" method="post" enctype="multipart/form-data">
-  <p><input type="file" name="image"></p>
-  <p><input type="text" name="content" value="<%= @post.content %>"></p>
-  <p><input type="submit" value="Create"></p>
-</form>
-<a href="/">Back</a>
+<section id="new">
+  <div class="container col-sm-4">
+    <h1>New Post</h1>
+    <% @post.errors.full_messages.each do |message| %>
+      <p style="color:red"><%= message %></p>
+    <% end %>
+    <form action="/create" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <input type="file" name="image" class="form-control" class="upload_image">
+      </div>
+      <div class="form-group">
+        <textarea name="content" class="form-control"><%= @post.content %></textarea>
+      </div>
+      <button class="btn btn-outline-danger" type="submit">Create</button>
+    </form>
+  </div>
+</section>
+

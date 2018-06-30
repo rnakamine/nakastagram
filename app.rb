@@ -1,10 +1,11 @@
+require 'sinatra'
 require 'sinatra/base'
-require 'sinatra/reloader'
+require 'sinatra/reloader' if development?
 require 'mysql2'
 require 'active_record'
 require 'active_support/all'
 require 'rack-flash'
-require 'pry'
+require 'pry' if development?
 
 class Nakastagram < Sinatra::Base
   Time.zone_default = Time.find_zone! 'Tokyo'
@@ -14,7 +15,7 @@ class Nakastagram < Sinatra::Base
   ActiveRecord::Base.establish_connection(:development)
 
   use Rack::Flash
-  set :public, File.dirname(__FILE__) + '/public'
+  set :public_folder, File.dirname(__FILE__) + '/public'
   enable :sessions
 
   helpers do
@@ -24,14 +25,14 @@ class Nakastagram < Sinatra::Base
 
     def authenticate_user
       unless session[:user_id]
-        flash[:notice] = 'ログインが必要です'
-        redirect to('/login_form')
+        flash[:error] = 'ログインが必要です'
+        redirect to('/')
       end
     end
 
     def forbid_login_user
       if @current_user
-        flash[:notice] = 'すでにログインしています'
+        flash[:error] = 'すでにログインしています'
         redirect to('/')
       end
     end
@@ -39,7 +40,7 @@ class Nakastagram < Sinatra::Base
     def ensure_correct_post
       post = Post.find(params[:id])
       if @current_user.id != post.user_id
-        flash[:notice] = '権限がありません'
+        flash[:error] = '権限がありません'
         redirect to('/')
       end
     end
@@ -50,8 +51,6 @@ class Nakastagram < Sinatra::Base
   end
 
   get '/' do
-    authenticate_user
-
     @title = 'Nakastagram'
     @posts = Post.all.order(created_at: :desc)
     erb :index
@@ -87,20 +86,20 @@ class Nakastagram < Sinatra::Base
     end
   end
 
-  get '/post/:id' do
+  get '/post_:id' do
     authenticate_user
     @post = Post.find(params[:id])
     erb :post
   end
 
-  get '/edit/:id' do
+  get '/edit_:id' do
     authenticate_user
     ensure_correct_post
     @post = Post.find(params[:id])
     erb :edit
   end
 
-  post '/update/:id' do
+  post '/update_:id' do
     ensure_correct_post
     @post = Post.find(params[:id])
 
@@ -112,11 +111,9 @@ class Nakastagram < Sinatra::Base
     end
   end
 
-  post '/destroy/:id' do
+  post '/destroy' do
     ensure_correct_post
     Post.find(params[:id]).destroy
-    flash[:notice] = '投稿を削除しました'
-    redirect to('/')
   end
 
   get '/signup' do
@@ -126,12 +123,29 @@ class Nakastagram < Sinatra::Base
   end
 
   post '/user_create' do
-    @user = User.create(name: params[:name], password: params[:password])
+    if params[:user_image] != nil
+      filename = "/image/user_image/#{params[:user_image][:filename]}"
+      image = params[:user_image][:tempfile]
+    else
+      filename = "/image/user_image/default-user-image.png"
+    end
+
+    @user = User.new(
+        name: params[:name],
+        password: params[:password],
+        user_image: filename
+    )
 
     if @user.save
+      if image
+        File.open("./public#{filename}", 'wb') do |f|
+          f.write(image.read)
+        end
+      end
+
       session[:user_id] = @user.id
-      flash[:notice] = '登録しました'
-      redirect to('/')
+      flash[:notice] = '気になるユーザーをフォローしましょう！'
+      redirect to('/users')
     else
       erb :signup
     end
@@ -161,7 +175,7 @@ class Nakastagram < Sinatra::Base
   get '/logout' do
     session[:user_id] = nil
     flash[:notice] = 'ログアウトしました'
-    redirect to('/login_form')
+    redirect to('/')
   end
 
   get '/users' do
@@ -173,22 +187,56 @@ class Nakastagram < Sinatra::Base
   get '/@:name' do
     authenticate_user
     @user = User.find_by(name: params[:name])
-    erb :user_show
+    erb :profile
   end
 
-  get '/user_edit/@:name' do
+  get '/user_edit_@:name' do
     @user = User.find_by(name: params[:name])
     erb :user_edit
   end
 
+  post '/user_update_:name' do
+    if params[:user_edit_image] != nil
+      filename = "/image/user_image/#{params[:user_edit_image][:filename]}"
+      image = params[:user_edit_image][:tempfile]
+    end
+
+
+    @user = User.find_by(name: params[:name])
+
+    if image
+      File.open("./public#{filename}", 'wb') do |f|
+        f.write(image.read)
+      end
+
+      @user.update(name: params[:user_edit_name], user_image: filename)
+      flash[:notice] = 'ユーザーを編集しました'
+      redirect to("/@#{@user.name}")
+    else
+      @user.update(name: params[:user_edit_name])
+      flash[:notice] = 'ユーザーを編集しました'
+      redirect to("/@#{@user.name}")
+    end
+  end
+
+  post '/like_create' do
+    authenticate_user
+  end
+
   post '/like_create/:id' do
     Like.create(user_id: @current_user.id, post_id: params[:id])
+    flash[:notice] = '投稿にいいね！しました'
     redirect to('/')
   end
 
   post '/like_destroy/:id' do
     Like.find_by(user_id: @current_user.id, post_id: params[:id]).destroy
+    flash[:notice] = 'いいね！を取り消しました'
     redirect to('/')
+  end
+
+  post '/comment_create' do
+    authenticate_user
   end
 
   post '/comment_create/:post_id/:user_id' do
@@ -197,8 +245,20 @@ class Nakastagram < Sinatra::Base
         user_id: params[:user_id],
         comment: params[:comment]
     )
-    @comment.save
-    redirect to('/')
+    if @comment.save
+      flash[:notice] = '投稿にコメントしました'
+      redirect to('/')
+    end
+  end
+
+  post '/follow/:user_id' do
+    Rerationship.create(follower_id: @current_user.id, followed_id: params[:user_id])
+    redirect to('/users')
+  end
+
+  post '/unfollow/:user_id' do
+    Rerationship.find_by(follower_id: @current_user.id, followed_id: params[:user_id]).destroy
+    redirect to('/users')
   end
 
 end
@@ -218,6 +278,7 @@ class User < ActiveRecord::Base
 
   has_many :post
   has_many :comment
+  has_many :rerationship
 end
 
 class Like < ActiveRecord::Base
@@ -233,3 +294,11 @@ class Comment < ActiveRecord::Base
   belongs_to :user
   belongs_to :post
 end
+
+class Rerationship < ActiveRecord::Base
+  validates :follower_id, presence: true
+  validates :followed_id, presence: true
+
+  has_many :user
+end
+

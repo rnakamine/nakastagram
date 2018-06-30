@@ -1,19 +1,19 @@
-<h1>User Edit</h1>
-<% @user.errors.full_messages.each do |message| %>
-  <% if message == "Name has already been taken" %>
-    <p style="color:red;font-size:12px;">・このユーザー名は既に使われています。</p>
-  <% elsif message == "Password can't be blank" %>
-    <p style="color:red;font-size:12px;">・パスワードを入力してください</p>
-  <% end %>
-<% end %>
-<form action="/update" method="post" enctype="multipart/form-data">
-  <p>Name</p>
-  <input type="text" name="name" value="<%= @user.name %>">
-  <p>Password</p>
-  <input type="password" name="password" value="<%= @user.password %>">
-  <p>Profile Image</p>
-  <input type="file" name="image">
-  <p></p>
-  <input type="submit" value="Edit">
-</form>
-<a href="/@<%= @user.name %>">Back</a>
+<section id="user_edit">
+  <div class="container col-lg-4">
+    <h1>Edit Profile</h1>
+    <% @user.errors.full_messages.each do |message| %>
+      <p style="color:red"><%= message %></p>
+    <% end %>
+    <form action="/user_update_<%= @user.name %>" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="user_edit_name">Name</label>
+        <input id="user_edit_name" type="text" name="user_edit_name" value="<%= @user.name %>" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="user_edit_image">Profile Image</label>
+        <input id="user_edit_image" type="file" name="user_edit_image" class="form-control">
+      </div>
+      <button class="btn btn-outline-danger" type="submit">Edit</button>
+    </form>
+  </div>
+</section>

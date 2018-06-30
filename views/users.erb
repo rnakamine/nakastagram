@@ -1,11 +1,40 @@
-<h1>Users</h1>
-<ul>
-  <% @users.each do |user| %>
-    <li>
-      <!--      <p><img src="<%#= user.iamge_path %>"></p>-->
-      <!--      <a href="/user/<%#= user.id %>"><%#= user.user.name %></a>-->
-      <p><a href="/@<%= user.name %>"><%= user.name %></a></p>
-    </li>
-  <% end %>
-</ul>
-<a href="/">Back</a>
+<section id="users">
+  <div class="container text-center">
+    <h1>All Users</h1>
+    <div class="users-list text-left d-inline-block">
+      <% @users.each do |user| %>
+        <div class="profile-title mb-3 pb-3" style="border-bottom: 1px solid #efefef">
+          <a href="/@<%= user.name %>"><img src="<%= user.user_image %>" width="80px" height="80px" style="border-radius: 50%" class="d-inline-block mr-3"></a>
+          <div class="profile-name d-inline-block" style="vertical-align: middle">
+            <h3 class="mt-0 mb-0"><a href="/@<%= user.name %>" style="color:#66615b;"><%= user.name %></a>
+              <% if @current_user.id != user.id && Rerationship.find_by(follower_id: @current_user.id, followed_id: user.id) %>
+                <form action="/unfollow/<%= user.id %>" method="post" name="following" class="d-inline float-right">
+                  <button type="submit" class="btn btn-outline-danger btn-sm m-0">Following</button>
+                </form>
+              <% elsif @current_user.id != user.id %>
+                <form action="/follow/<%= user.id %>" method="post" name="follow" class="d-inline float-right">
+                  <button type="submit" class="btn btn-danger btn-sm m-0">Follow</button>
+                </form>
+              <% end %>
+            </h3>
+            <div class="mt-2">
+              <p class="d-inline mr-4"><span class="font-weight-bold mr-1"><%= user.post.count %></span>Posts</p>
+              <p class="d-inline mr-4">
+                <span class="font-weight-bold mr-1">
+                  <%= Rerationship.where(followed_id: user.id).count %>
+                </span>
+                Followers
+              </p>
+              <p class="d-inline mr-4">
+                <span class="font-weight-bold mr-1">
+                  <%= Rerationship.where(follower_id: user.id).count %>
+                </span>
+                Following
+              </p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+</section>
+

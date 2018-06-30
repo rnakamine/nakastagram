@@ -108,6 +108,16 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="json (vbundled(2.1.0)) [path][gem]">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/vendor/bundle/ruby/2.4.0/gems/json-2.1.0/lib" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/vendor/bundle/ruby/2.4.0/gems/json-2.1.0/lib" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="method_source (vbundled(0.9.0)) [path][gem]">
         <CLASSES>
           <root url="file://$MODULE_DIR$/vendor/bundle/ruby/2.4.0/gems/method_source-0.9.0/lib" />

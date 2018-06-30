@@ -1,16 +1,17 @@
-<% if flash[:notice] %>
-  <p style="color:red;font-size:12px;"><%= flash[:notice] %></p>
-<% end %>
-<% if @error_message %>
-  <p style="color:red;font-size:12px;"><%= @error_message %></p>
-<% end %>
-
-<h1>Login</h1>
-<form action="/login" method="post">
-  <p>Name</p>
-  <input type="text" name="name" value="<%= @name %>">
-  <p>Password</p>
-  <input type="password" name="password" value="<%= @password %>">
-  <p></p>
-  <input type="submit" value="Login">
-</form>
+<section id="login">
+  <div class="container col-lg-4">
+    <h1>Login</h1>
+    <form action="/login" method="post">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" name="name" value="<%= @name %>" class="form-control" placeholder="Name" id="name">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" value="<%= @password %>" class="form-control" placeholder="Password" id="password">
+      </div>
+      <p>Not registered? <a href="/signup">Sign Up</a></p>
+      <button class="btn btn-outline-danger" type="submit">Login</button>
+    </form>
+  </div>
+</section>

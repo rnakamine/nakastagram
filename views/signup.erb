@@ -1,18 +1,23 @@
-<h1>Sign Up</h1>
-<% @user.errors.full_messages.each do |message| %>
-  <% if message == "Name has already been taken" %>
-    <p style="color:red;font-size:12px;">・このユーザー名は既に使われています。</p>
-  <% elsif message == "Password can't be blank" %>
-    <p style="color:red;font-size:12px;">・パスワードを入力してください</p>
-  <% end %>
-<% end %>
-<form action="/user_create" method="post" enctype="multipart/form-data">
-  <p>Name</p>
-  <input type="text" name="name">
-  <p>Password</p>
-  <input type="password" name="password">
-  <p>Profile Image</p>
-  <input type="file" name="image">
-  <p></p>
-  <input type="submit" value="Registration">
-</form>
+<section id="signup">
+  <div class="container col-sm-4">
+    <h1>Sign Up</h1>
+    <% @user.errors.full_messages.each do |message| %>
+      <p style="color:red"><%= message %></p>
+    <% end %>
+    <form action="/user_create" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" name="name" value="<%= @name %>" class="form-control" placeholder="Name..." id="name">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" value="<%= @password %>" class="form-control" placeholder="Password..." id="password">
+      </div>
+      <div class="form-group">
+        <label for="user_image">Profile Image</label>
+        <input type="file" name="user_image" class="form-control" id="user_image">
+      </div>
+      <button class="btn btn-outline-danger" type="submit">Ragistration</button>
+    </form>
+  </div>
+</section>

@@ -1,11 +1,14 @@
-<h1>Edit</h1>
-<% @post.errors.full_messages.each do |message| %>
-  <% if message == "Content can't be blank" %>
-    <p style="color:red;font-size:12px;">・内容を入力してください</p>
-  <% end %>
-<% end %>
-<form action="/update/<%= @post.id %>" method="post">
-  <p><input type="text" name="content" value="<%= @post.content %>"></p>
-  <p><input type="submit" value="Edit"></p>
-</form>
-<a href="/post/<%= @post.id %>">Back</a>
+<section id="post_edit">
+  <div class="container col-sm-4">
+    <h1>Edit</h1>
+    <% @post.errors.full_messages.each do |message| %>
+      <p style="color:red"><%= message %></p>
+    <% end %>
+    <form action="/update_<%= @post.id %>" method="post">
+      <div class="form-group">
+        <input type="text" name="content" value="<%= @post.content %>" class="form-control">
+      </div>
+      <button class="btn btn-outline-danger" type="submit">Edit</button>
+    </form>
+  </div>
+</section>
