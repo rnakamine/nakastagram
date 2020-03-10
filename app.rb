@@ -10,7 +10,6 @@ require 'pry' if development?
 class Nakastagram < Sinatra::Base
   Time.zone_default = Time.find_zone! 'Tokyo'
   ActiveRecord::Base.default_timezone = :local
-
   ActiveRecord::Base.configurations = YAML.load_file('database.yml')
   ActiveRecord::Base.establish_connection(:development)
 
